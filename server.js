@@ -262,10 +262,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
 // ✅ MongoDB Connection
-const MONGO_URI = "mongodb+srv://deepikamashetty79:Deepika7912@cluster0.9jrfn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const MONGODB_URI = "mongodb+srv://deepikamashetty79:Deepika7912@cluster0.9jrfn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 mongoose
-  .connect(MONGO_URI)
+  .connect(MONGODB_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
@@ -355,13 +355,20 @@ app.put("/api/applications/:id", async (req, res) => {
 });
 
 // ✅ Fetch All Applications
-app.get("/applications", async (req, res) => {
+app.get('/api/applications', async (req, res) => {
+  const { search } = req.query;
   try {
-    const applications = await Application.find(); // Corrected to use Application
+    let applications;
+    if (search) {
+      applications = await Application.find({
+        fullname: { $regex: search, $options: 'i' } // Case insensitive search
+      });
+    } else {
+      applications = await Application.find();
+    }
     res.json(applications);
   } catch (error) {
-    console.error("Error fetching applications:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: 'Failed to fetch applications.' });
   }
 });
 
@@ -387,18 +394,11 @@ app.get("/api/applications/rejected", async (req, res) => {
     res.status(500).json({ message: "❌ Server error, unable to fetch data" });
   }
 });
-
-// ✅ Update application status (Accept/Reject)
-app.post("/update-status/:id", async (req, res) => {
+// ✅ Update application status
+app.put("/api/applications/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-
-    console.log(`📌 Updating status for ID: ${id} | New Status: ${status}`);
-
-    if (!status || (status !== "Accepted" && status !== "Rejected")) {
-      return res.status(400).json({ message: "❌ Invalid status! Use 'Accepted' or 'Rejected'." });
-    }
 
     const updatedApp = await Application.findOneAndUpdate(
       { application_id: id },
@@ -407,16 +407,32 @@ app.post("/update-status/:id", async (req, res) => {
     );
 
     if (!updatedApp) {
-      console.log("❌ Application not found for ID:", id);
       return res.status(404).json({ message: "❌ Application not found!" });
     }
 
-    console.log("✅ Status Updated:", updatedApp);
-    res.json({ message: `✅ Application updated to ${status}`, application: updatedApp });
-
+    res.status(200).json({ message: "✅ Application status updated successfully", application: updatedApp });
   } catch (error) {
-    console.error("❌ Error updating status:", error);
-    res.status(500).json({ message: "❌ Server error, unable to update status" });
+    res.status(500).json({ error: "❌ Failed to update application status" });
+  }
+});
+
+// ✅ Fetch Accepted Applications
+app.get("/api/applications/accepted", async (req, res) => {
+  try {
+    const acceptedApps = await Application.find({ status: "Accepted" });
+    res.json(acceptedApps);
+  } catch (error) {
+    res.status(500).json({ message: "❌ Server error, unable to fetch data" });
+  }
+});
+
+// ✅ Fetch Rejected Applications
+app.get("/api/applications/rejected", async (req, res) => {
+  try {
+    const rejectedApps = await Application.find({ status: "Rejected" });
+    res.json(rejectedApps);
+  } catch (error) {
+    res.status(500).json({ message: "❌ Server error, unable to fetch data" });
   }
 });
 
