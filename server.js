@@ -8,7 +8,15 @@ const router = express.Router();
 const app = express();
 
 // ✅ Middleware
-app.use(cors());
+
+app.use(
+  cors({
+    origin: "*", // Allow all origins (or replace with frontend URL)
+    methods: ["POST", "GET"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
@@ -219,5 +227,5 @@ router.put("/applications/:id/status", async (req, res) => {
 });
 
 // ✅ Start Server
-const PORT = 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
