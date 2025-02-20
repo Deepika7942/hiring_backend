@@ -3,7 +3,9 @@ const cors = require('cors');
 const mongoose = require("mongoose");
 const multer = require("multer");
 const path = require("path");
-
+const { GridFsStorage } = require("multer-gridfs-storage");
+const Grid = require("gridfs-stream");
+require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(cors());
@@ -26,13 +28,20 @@ mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+// Initialize GridFS
+let gfs;
+conn.once("open", () => {
+    gfs = Grid(conn.db, mongoose.mongo);
+    gfs.collection("uploads");
+});
 
-// ✅ Multer Storage Configuration
-const storage = multer.diskStorage({
-  destination: "./uploads/",
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
+// GridFS Storage
+const storage = new GridFsStorage({
+    url: mongoURI,
+    file: (req, file) => ({
+        filename: `${Date.now()}-${file.originalname}`,
+        bucketName: "uploads"
+    })
 });
 const upload = multer({ storage });
 
@@ -58,7 +67,10 @@ const ApplicationSchema = new mongoose.Schema({
 
 const Application = mongoose.models.Application || mongoose.model("Application", ApplicationSchema);
 
-
+// File Upload Route
+app.post("/upload", upload.single("file"), (req, res) => {
+  res.json({ file: req.file });
+});
 
 // ✅ Define the submit-form POST route
 
