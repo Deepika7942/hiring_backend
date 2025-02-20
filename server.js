@@ -78,11 +78,7 @@ const Application = mongoose.models.Application || mongoose.model("Application",
 
 app.post("/api/applications", async (req, res) => {
   try {
-    const { name, email, resume } = req.body;
-    if (!name || !email || !resume) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-    const newApplication = new ApplicationModel(req.body);
+    const newApplication = new Application(req.body);
     await newApplication.save();
     res.status(201).json({ message: "Application submitted successfully" });
   } catch (error) {
@@ -133,23 +129,6 @@ app.post("/submit-form", upload.single("resume"), async (req, res) => {
   }
 });
 
-
-
-
-// ✅ Update application status
-app.put("/api/applications/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    // Find and update the application
-    await Application.findByIdAndUpdate(id, { status });
-
-    res.status(200).json({ message: "✅ Application status updated successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "❌ Failed to update application status" });
-  }
-});
 
 app.get("/api/applications", async (req, res) => {
   console.log("API Hit: /api/applications"); // Debugging

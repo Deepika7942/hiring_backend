@@ -85,26 +85,78 @@ router.post("/update-status/:id", async (req, res) => {
     res.status(500).json({ message: "Error updating status", error });
   }
 });
-// ✅ Get Accepted Applications
+// ✅ Get all applications
+router.get("/applications", async (req, res) => {
+  try {
+    const applications = await Application.find();
+    res.json(applications);
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// ✅ Get accepted applications
 router.get("/applications/accepted", async (req, res) => {
   try {
     const acceptedApplications = await Application.find({ status: "accepted" });
     res.json(acceptedApplications);
   } catch (error) {
-    console.error("Error fetching accepted applications:", error);
-    res.status(500).json({ error: "Server error! Please try again." });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-// ✅ Get Rejected Applications
+// ✅ Get rejected applications
 router.get("/applications/rejected", async (req, res) => {
   try {
     const rejectedApplications = await Application.find({ status: "rejected" });
     res.json(rejectedApplications);
   } catch (error) {
-    console.error("Error fetching rejected applications:", error);
-    res.status(500).json({ error: "Server error! Please try again." });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
+// POST Application
+router.post("/applications", async (req, res) => {
+  try {
+    const newApplication = new Application(req.body);
+    await newApplication.save();
+    res.status(201).json({ message: "Application submitted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// ✅ Accept an application (Update status to 'accepted')
+router.put("/applications/:id/accept", async (req, res) => {
+  try {
+    const application = await Application.findByIdAndUpdate(
+      req.params.id,
+      { status: "accepted" },
+      { new: true }
+    );
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+    res.json({ message: "Application accepted", application });
+  } catch (error) {
+    res.status(500).json({ error: "Error accepting application" });
+  }
+});
+
+// ✅ Reject an application (Update status to 'rejected')
+router.put("/applications/:id/reject", async (req, res) => {
+  try {
+    const application = await Application.findByIdAndUpdate(
+      req.params.id,
+      { status: "rejected" },
+      { new: true }
+    );
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+    res.json({ message: "Application rejected", application });
+  } catch (error) {
+    res.status(500).json({ error: "Error rejecting application" });
+  }
+});
 module.exports = router;
