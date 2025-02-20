@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
 // Test Route
-app.get("/test", (req, res) => {
+app.get("/", (req, res) => {
   res.json({ message: "Backend is working!" });
 });
 // Default 404 handler
