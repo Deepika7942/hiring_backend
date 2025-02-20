@@ -76,7 +76,7 @@ const Application = mongoose.models.Application || mongoose.model("Application",
 
 // ✅ Define the submit-form POST route
 
-app.post("/api/submit-form", upload.single("resume"), async (req, res) => {
+app.post("/submit-form", upload.single("resume"), async (req, res) => {
   try {
     console.log("Form received:", req.body);
     console.log("File received:", req.file);
