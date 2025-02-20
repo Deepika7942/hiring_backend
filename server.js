@@ -8,10 +8,6 @@ const app = express();
 
 app.use(cors());
 
-// ✅ Middleware
-
-
-
 // ✅ Alternative: Allow all origins (for development only)
 
 
@@ -19,6 +15,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
+app.get("/", (req, res) => {
+  res.send("API is working");
+});
 // ✅ MongoDB Connection
 const MONGODB_URI = "mongodb+srv://deepikamashetty79:Deepika7912@cluster0.9jrfn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
