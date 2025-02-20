@@ -27,14 +27,18 @@ mongoose
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// ✅ Multer Storage Configuration
-const storage = multer.diskStorage({
-  destination: "./uploads/",
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
+
+// Use memory storage instead of disk storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+app.post("/upload", upload.single("file"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded!" });
+  }
+  res.json({ message: "File uploaded successfully!", file: req.file });
 });
-const upload = multer({ storage });
+
 
 // ✅ Schema & Model
 const ApplicationSchema = new mongoose.Schema({
