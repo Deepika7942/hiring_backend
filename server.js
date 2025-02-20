@@ -171,24 +171,25 @@ app.put("/api/applications/:id", async (req, res) => {
   }
 });
 
+// ✅ Fetch Accepted Applications
 app.get("/api/applications/accepted", async (req, res) => {
   try {
-      const acceptedApps = await Application.find({ status: "accepted" });
-      res.json(acceptedApps);
+    const acceptedApps = await Application.find({ status: "Accepted" });
+    res.json(acceptedApps);
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "❌ Server error, unable to fetch data" });
   }
 });
 
+// ✅ Fetch Rejected Applications
 app.get("/api/applications/rejected", async (req, res) => {
   try {
-      const rejectedApps = await Application.find({ status: "rejected" });
-      res.json(rejectedApps);
+    const rejectedApps = await Application.find({ status: "Rejected" });
+    res.json(rejectedApps);
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "❌ Server error, unable to fetch data" });
   }
 });
-
 
 module.exports = app;  // Important for Vercel
 const port = process.env.PORT || 3000;
