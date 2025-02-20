@@ -15,9 +15,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
-app.get("/", (req, res) => {
-  res.send("API is working");
+// Test Route
+app.get("/test", (req, res) => {
+  res.json({ message: "Backend is working!" });
 });
+// Default 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
 // ✅ MongoDB Connection
 const MONGODB_URI = "mongodb+srv://deepikamashetty79:Deepika7912@cluster0.9jrfn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
@@ -205,6 +211,7 @@ app.get("/api/applications/rejected", async (req, res) => {
     res.status(500).json({ message: "❌ Server error, unable to fetch data" });
   }
 });
+module.exports = app;  // Important for Vercel
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
