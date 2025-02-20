@@ -3,11 +3,9 @@ const cors = require('cors');
 const mongoose = require("mongoose");
 const multer = require("multer");
 const path = require("path");
-const { GridFsStorage } = require("multer-gridfs-storage");
-const Grid = require("gridfs-stream");
-require("dotenv").config();
+
 const app = express();
-const PORT = process.env.PORT || 5000;
+
 app.use(cors());
 
 // ✅ Middleware
@@ -28,20 +26,13 @@ mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
-// Initialize GridFS
-let gfs;
-conn.once("open", () => {
-    gfs = Grid(conn.db, mongoose.mongo);
-    gfs.collection("uploads");
-});
 
-// GridFS Storage
-const storage = new GridFsStorage({
-    url: mongoURI,
-    file: (req, file) => ({
-        filename: `${Date.now()}-${file.originalname}`,
-        bucketName: "uploads"
-    })
+// ✅ Multer Storage Configuration
+const storage = multer.diskStorage({
+  destination: "./uploads/",
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
 });
 const upload = multer({ storage });
 
@@ -67,10 +58,7 @@ const ApplicationSchema = new mongoose.Schema({
 
 const Application = mongoose.models.Application || mongoose.model("Application", ApplicationSchema);
 
-// File Upload Route
-app.post("/upload", upload.single("file"), (req, res) => {
-  res.json({ file: req.file });
-});
+
 
 // ✅ Define the submit-form POST route
 
@@ -162,13 +150,7 @@ app.get("/api/applications/accepted", async (req, res) => {
     res.status(500).json({ message: "❌ Server error, unable to fetch data" });
   }
 });
-app.get("/", (req, res) => {
-  res.send("Backend is working!");
-});
 
-app.get("/api/test", (req, res) => {
-  res.json({ message: "API is working!" });
-});
 // ✅ Fetch Rejected Applications
 app.get("/api/applications/rejected", async (req, res) => {
   try {
@@ -221,7 +203,7 @@ app.get("/api/applications/rejected", async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// ✅ Start Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Server running on "http://localhost:${PORT}"`));
+
