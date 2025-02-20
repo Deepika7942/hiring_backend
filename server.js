@@ -76,6 +76,19 @@ const ApplicationSchema = new mongoose.Schema({
 const Application = mongoose.models.Application || mongoose.model("Application", ApplicationSchema);
 
 
+app.post("/api/applications", async (req, res) => {
+  try {
+    const { name, email, resume } = req.body;
+    if (!name || !email || !resume) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+    const newApplication = new ApplicationModel(req.body);
+    await newApplication.save();
+    res.status(201).json({ message: "Application submitted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 // ✅ Define the submit-form POST route
 
