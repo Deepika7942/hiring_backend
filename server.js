@@ -10,6 +10,11 @@ app.use(cors());
 
 // ✅ Alternative: Allow all origins (for development only)
 
+// ✅ Import applications route
+const applicationRoutes = require("./routes/Applications");
+
+// ✅ Use the route with `/api/applications`
+app.use("/api/applications", applicationRoutes);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
