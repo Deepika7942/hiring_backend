@@ -130,21 +130,14 @@ app.put("/api/applications/:id", async (req, res) => {
   }
 });
 
-// ✅ Fetch All Applications
-app.get('/api/applications', async (req, res) => {
-  const { search } = req.query;
+app.get("/api/applications", async (req, res) => {
+  console.log("API Hit: /api/applications"); // Debugging
   try {
-    let applications;
-    if (search) {
-      applications = await Application.find({
-        fullname: { $regex: search, $options: 'i' } // Case insensitive search
-      });
-    } else {
-      applications = await Application.find();
-    }
+    const applications = await Application.find();
     res.json(applications);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch applications.' });
+    console.error("Error fetching applications:", error);
+    res.status(500).json({ message: "Failed to fetch applications." });
   }
 });
 
