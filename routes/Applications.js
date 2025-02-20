@@ -85,5 +85,26 @@ router.post("/update-status/:id", async (req, res) => {
     res.status(500).json({ message: "Error updating status", error });
   }
 });
+// ✅ Get Accepted Applications
+router.get("/applications/accepted", async (req, res) => {
+  try {
+    const acceptedApplications = await Application.find({ status: "accepted" });
+    res.json(acceptedApplications);
+  } catch (error) {
+    console.error("Error fetching accepted applications:", error);
+    res.status(500).json({ error: "Server error! Please try again." });
+  }
+});
+
+// ✅ Get Rejected Applications
+router.get("/applications/rejected", async (req, res) => {
+  try {
+    const rejectedApplications = await Application.find({ status: "rejected" });
+    res.json(rejectedApplications);
+  } catch (error) {
+    console.error("Error fetching rejected applications:", error);
+    res.status(500).json({ error: "Server error! Please try again." });
+  }
+});
 
 module.exports = router;

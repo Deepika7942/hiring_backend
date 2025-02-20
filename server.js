@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require("mongoose");
 const multer = require("multer");
 const path = require("path");
+const router = express.Router();
 
 const app = express();
 
@@ -14,7 +15,8 @@ app.use(cors());
 const applicationRoutes = require("./routes/Applications");
 
 // ✅ Use the route with `/api/applications`
-app.use("/api/applications", applicationRoutes);
+app.use("/api", applicationRoutes);
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -147,27 +149,6 @@ app.get("/api/applications", async (req, res) => {
 });
 
 
-// ✅ Fetch Accepted Applications
-app.get("/api/applications/accepted", async (req, res) => {
-  try {
-    const acceptedApps = await Application.find({ status: "Accepted" });
-    res.json(acceptedApps);
-  } catch (error) {
-    console.error("❌ Error fetching accepted applications:", error);
-    res.status(500).json({ message: "❌ Server error, unable to fetch data" });
-  }
-});
-
-// ✅ Fetch Rejected Applications
-app.get("/api/applications/rejected", async (req, res) => {
-  try {
-    const rejectedApps = await Application.find({ status: "Rejected" });
-    res.json(rejectedApps);
-  } catch (error) {
-    console.error("❌ Error fetching rejected applications:", error);
-    res.status(500).json({ message: "❌ Server error, unable to fetch data" });
-  }
-});
 // ✅ Update application status
 app.put("/api/applications/:id", async (req, res) => {
   try {
@@ -190,25 +171,25 @@ app.put("/api/applications/:id", async (req, res) => {
   }
 });
 
-// ✅ Fetch Accepted Applications
 app.get("/api/applications/accepted", async (req, res) => {
   try {
-    const acceptedApps = await Application.find({ status: "Accepted" });
-    res.json(acceptedApps);
+      const acceptedApps = await Application.find({ status: "accepted" });
+      res.json(acceptedApps);
   } catch (error) {
-    res.status(500).json({ message: "❌ Server error, unable to fetch data" });
+      res.status(500).json({ error: error.message });
   }
 });
 
-// ✅ Fetch Rejected Applications
 app.get("/api/applications/rejected", async (req, res) => {
   try {
-    const rejectedApps = await Application.find({ status: "Rejected" });
-    res.json(rejectedApps);
+      const rejectedApps = await Application.find({ status: "rejected" });
+      res.json(rejectedApps);
   } catch (error) {
-    res.status(500).json({ message: "❌ Server error, unable to fetch data" });
+      res.status(500).json({ error: error.message });
   }
 });
+
+
 module.exports = app;  // Important for Vercel
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Server running on port ${port}`));
